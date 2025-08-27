@@ -12,7 +12,7 @@ jobs:
       fail-fast: false
       matrix:
 #        os: ['ubuntu-latest', 'windows-latest', 'macos-latest', , 'ubuntu-22.04']
-        os: ['ubuntu-22.04-arm']
+        os: ['ubuntu-22.04-arm', 'ubuntu-22.04']
     runs-on: ${{ matrix.os }}
 
     steps:
@@ -91,6 +91,5 @@ jobs:
           which appstreamcli || true
           appstreamcli --version || true
           which desktop-file-validate || true
-          desktop-file-validate --version || true
-          which zsyncmake || true
+          echo 'SMTEST: AppStream'
           ldconfig -p | grep -E 'fuse|webkit' || true
