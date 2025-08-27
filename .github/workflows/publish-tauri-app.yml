@@ -19,7 +19,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: ${{ fromJSON(format('["{0}"]', replace(inputs.platforms, ',', '","'))) }}
+        os: ${{ split(inputs.platforms, ',') }}
     steps:
       - name: Show the input string and matrix
         run: |
