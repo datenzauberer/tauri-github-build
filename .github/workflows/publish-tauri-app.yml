@@ -7,27 +7,30 @@ on:
   workflow_dispatch:
     inputs:
       platforms:
-        description: "Platforms to build (comma separated)"
+        description: "Platforms to build (comma separated). ** Supported Platforms:** ubuntu-latest,macos-latest,aarch64-apple-darwin,ubuntu-24.04-arm"
         required: false
-        default: "aarch64-apple-darwin,ubuntu-24.04-arm"
+        default: "macos-latest"
 
 jobs:
   publish-tauri:
+    runs-on: ${{ matrix.os }}
     permissions:
       contents: write
     strategy:
       fail-fast: false
       matrix:
-        platform: ${{ fromJSON('["aarch64-apple-darwin","ubuntu-24.04-arm"]') }}
-        include: [] # populated later
-
-    runs-on: ${{ matrix.platform == 'aarch64-apple-darwin' && 'macos-latest' || 
-                 (matrix.platform == 'ubuntu-24.04' && 'ubuntu-24.04') ||
-                 (matrix.platform == 'ubuntu-24.04-arm' && 'ubuntu-24.04-arm') ||
-                 (matrix.platform == 'windows-latest' && 'windows-latest') }}
-
+        os: ${{ fromJSON(format('["{0}"]', replace(inputs.platforms, ',', '","'))) }}
     steps:
-      - uses: actions/checkout@v4
+      - name: Show the input string and matrix
+        run: |
+          echo "The raw input string is: ${{ inputs.platforms }}"
+          echo "The matrix os value is: ${{ matrix.os }}"
+          
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        
+      - name: Show platform
+        run: echo "Building on ${{ runner.os }} with matrix.os: ${{ matrix.os }}"       
 
       - name: Setup pnpm
         uses: pnpm/action-setup@v3
