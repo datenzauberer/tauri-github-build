@@ -11,8 +11,8 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-#        os: ['ubuntu-latest', 'windows-latest', 'macos-latest']
-        os: ['ubuntu-22.04-arm', 'ubuntu-22.04']
+#        os: ['ubuntu-latest', 'windows-latest', 'macos-latest', , 'ubuntu-22.04']
+        os: ['ubuntu-22.04-arm']
     runs-on: ${{ matrix.os }}
 
     steps:
@@ -59,6 +59,16 @@ jobs:
       - name: Install frontend dependencies
         run: pnpm install --frozen-lockfile
 
+      # Helpful diagnostics before building (kept non-fatal)
+      - name: Tauri environment info (debug)
+        run: pnpm tauri info || true
+
+      - name: Set verbose build logs
+        run: |
+          echo "CARGO_TERM_VERBOSE=true" >> $GITHUB_ENV
+          echo "RUST_LOG=tauri_bundler=trace,tauri_cli=debug" >> $GITHUB_ENV
+          echo "TAURI_LOG_LEVEL=debug" >> $GITHUB_ENV
+
       - name: Build and publish with Tauri
         uses: tauri-apps/tauri-action@v0
         env:
@@ -69,3 +79,17 @@ jobs:
           releaseBody: "See the assets to download this version and install."
           releaseDraft: true
           prerelease: false
+          args: --verbose
+
+      # If bundling fails, these help pinpoint missing libraries/binaries.
+      - name: Inspect built binary (debug on failure)
+        if: failure()
+        run: |
+          find src-tauri/target/release -maxdepth 2 -type f -name "tauri-*" -print || true
+          ldd src-tauri/target/release/tauri-* || true
+          which appstreamcli || true
+          appstreamcli --version || true
+          which desktop-file-validate || true
+          desktop-file-validate --version || true
+          which zsyncmake || true
+          ldconfig -p | grep -E 'fuse|webkit' || true
