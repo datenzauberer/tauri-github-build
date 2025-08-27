@@ -1,0 +1,73 @@
+name: publish
+
+on:
+  push:
+    branches:
+      - master
+  workflow_dispatch:
+    inputs:
+      platforms:
+        description: "Platforms to build (comma separated)"
+        required: false
+        default: "aarch64-apple-darwin,ubuntu-24.04-arm"
+
+jobs:
+  publish-tauri:
+    permissions:
+      contents: write
+    strategy:
+      fail-fast: false
+      matrix:
+        platform: ${{ fromJSON('["aarch64-apple-darwin","ubuntu-24.04-arm"]') }}
+        include: [] # populated later
+
+    runs-on: ${{ matrix.platform == 'aarch64-apple-darwin' && 'macos-latest' || 
+                 (matrix.platform == 'ubuntu-24.04' && 'ubuntu-24.04') ||
+                 (matrix.platform == 'ubuntu-24.04-arm' && 'ubuntu-24.04-arm') ||
+                 (matrix.platform == 'windows-latest' && 'windows-latest') }}
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: lts/*
+          cache: pnpm
+          cache-dependency-path: pnpm-lock.yaml
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 9
+          run_install: false
+
+      - name: Install Rust (stable)
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: ${{ matrix.platform == 'aarch64-apple-darwin' && 'aarch64-apple-darwin' || '' }}
+
+      - name: Install Linux dependencies (Ubuntu only)
+        if: contains(matrix.platform, 'ubuntu')
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y \
+            libwebkit2gtk-4.0-dev \
+            libwebkit2gtk-4.1-dev \
+            libappindicator3-dev \
+            librsvg2-dev \
+            patchelf
+
+      - name: Install frontend dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Build and publish with Tauri
+        uses: tauri-apps/tauri-action@v0
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tagName: app-v__VERSION__
+          releaseName: "App v__VERSION__"
+          releaseBody: "See the assets to download this version and install."
+          releaseDraft: true
+          prerelease: false
