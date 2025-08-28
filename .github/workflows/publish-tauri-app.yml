@@ -3,7 +3,7 @@ name: publish
 on:
   push:
     branches:
-      - main
+      - develop
 jobs:
   publish-tauri:
     permissions:
@@ -11,24 +11,17 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-#        os: ['ubuntu-latest', 'windows-latest', 'macos-latest', , 'ubuntu-22.04']
-#        os: ['ubuntu-22.04-arm', 'ubuntu-24.04-arm']
-#        os: ['ubuntu-22.04', 'ubuntu-24.04']
-        os: ['ubuntu-25.04-arm']
+#        os: ['ubuntu-latest', 'windows-latest', 'macos-latest', 'ubuntu-22.04', 'ubuntu-22.04-arm', 'ubuntu-24.04-arm']
+        os: ['macos-latest', 'ubuntu-22.04', 'ubuntu-22.04-arm', 'ubuntu-24.04-arm']
     runs-on: ${{ matrix.os }}
 
     steps:
-      - name: Show the input string and matrix
-        run: |
-          echo "The raw input string is: ${{ inputs.platforms }}"
-          echo "The matrix os value is: ${{ matrix.os }}"
+      - name: Show runner OS
+        run: echo "Building on ${{ runner.os }}"
           
       - name: Checkout repository
         uses: actions/checkout@v4
         
-      - name: Show runner OS
-        run: echo "Building on ${{ runner.os }}"
-
       - name: Setup pnpm
         uses: pnpm/action-setup@v3
         with:
@@ -45,11 +38,10 @@ jobs:
       - name: Install Rust (stable)
         uses: dtolnay/rust-toolchain@stable
         with:
-          # Use the correct runner label to conditionally install aarch64 target
           targets: ${{ contains(matrix.os, 'macos') && 'aarch64-apple-darwin' || '' }}
 
-      - name: Install Linux dependencies (Ubuntu only)
-        if: contains(matrix.os, 'ubuntu')
+      - name: Install Linux dependencies (Ubuntu only NOT ARM)
+        if: contains(matrix.os, 'ubuntu') && !contains(runner.arch, 'arm')
         run: |
           sudo apt-get update
           sudo apt-get install -y \
@@ -58,19 +50,21 @@ jobs:
             librsvg2-dev \
             patchelf \
             desktop-file-utils appstream
-      
+
+      - name: Install Linux dependencies (Ubuntu ARM only)
+        if: contains(matrix.os, 'ubuntu') && contains(runner.arch, 'arm')
+        run: |
+          sudo apt update
+          sudo apt install -y \
+            libwebkit2gtk-4.1-dev:arm64 \
+            libayatana-appindicator3-dev:arm64 \
+            librsvg2-dev:arm64 \
+            patchelf \
+            desktop-file-utils appstream \
+            xdg-utils
+
       - name: Install frontend dependencies
         run: pnpm install --frozen-lockfile
-
-      # Helpful diagnostics before building (kept non-fatal)
-      - name: Tauri environment info (debug)
-        run: pnpm tauri info || true
-
-      - name: Set verbose build logs
-        run: |
-          echo "CARGO_TERM_VERBOSE=true" >> $GITHUB_ENV
-          echo "RUST_LOG=tauri_bundler=trace,tauri_cli=debug" >> $GITHUB_ENV
-          echo "TAURI_LOG_LEVEL=debug" >> $GITHUB_ENV
 
       - name: Build and publish with Tauri
         uses: tauri-apps/tauri-action@v0
@@ -84,14 +78,3 @@ jobs:
           prerelease: false
           args: --verbose
 
-      # If bundling fails, these help pinpoint missing libraries/binaries.
-      - name: Inspect built binary (debug on failure)
-        if: failure()
-        run: |
-          find src-tauri/target/release -maxdepth 2 -type f -name "tauri-*" -print || true
-          ldd src-tauri/target/release/tauri-* || true
-          which appstreamcli || true
-          appstreamcli --version || true
-          which desktop-file-validate || true
-          echo 'SMTEST: AppStream'
-          ldconfig -p | grep -E 'fuse|webkit' || true
