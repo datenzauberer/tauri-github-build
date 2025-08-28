@@ -86,7 +86,8 @@ jobs:
             libssl-dev \
             patchelm || sudo apt-get install -y patchelf \
             desktop-file-utils appstream zsync xz-utils \
-            libfuse2t64
+            libfuse2t64 \
+            xdg-utils
           echo "webkit2gtk-4.1: $(pkg-config --modversion webkit2gtk-4.1 || echo 'not found')"
           echo "fuse2: $(ldconfig -p | grep -E 'libfuse\.so\.2' || echo 'not found')"
 # SMTEST-END    
