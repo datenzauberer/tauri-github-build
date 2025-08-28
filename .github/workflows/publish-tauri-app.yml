@@ -3,7 +3,7 @@ name: publish
 on:
   push:
     branches:
-      - main2
+      - main
 jobs:
   publish-tauri:
     permissions:
