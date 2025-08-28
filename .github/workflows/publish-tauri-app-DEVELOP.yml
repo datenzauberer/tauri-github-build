@@ -62,16 +62,17 @@ jobs:
       - name: Install Linux dependencies (Ubuntu ARM only)
         if: contains(matrix.os, 'ubuntu') && contains(runner.arch, 'arm')
         run: |
+          sudo apt update # It's good practice to run this first
           sudo apt install -y \
-              build-essential \
-              libwebkit2gtk-4.1-dev \
-              libayatana-appindicator3-dev \
-              librsvg2-dev \
-              curl \
-              wget \
-              file \
-              libssl-dev        
-
+            build-essential \
+            libwebkit2gtk-4.1-dev:arm64 \
+            libayatana-appindicator3-dev:arm64 \
+            librsvg2-dev:arm64 \
+            curl \
+            wget \
+            file \
+            libssl-dev:arm64
+      
       - name: Install frontend dependencies
         run: pnpm install --frozen-lockfile
 
