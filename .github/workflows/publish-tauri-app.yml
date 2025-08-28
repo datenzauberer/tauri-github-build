@@ -12,7 +12,8 @@ jobs:
       fail-fast: false
       matrix:
 #        os: ['ubuntu-latest', 'windows-latest', 'macos-latest', 'ubuntu-22.04', 'ubuntu-22.04-arm', 'ubuntu-24.04-arm']
-        os: ['macos-latest', 'ubuntu-22.04', 'ubuntu-22.04-arm', 'ubuntu-24.04-arm']
+#        os: ['macos-latest', 'ubuntu-22.04', 'ubuntu-22.04-arm', 'ubuntu-24.04-arm']
+        os: ['ubuntu-24.04-arm']
     runs-on: ${{ matrix.os }}
 
     steps:
