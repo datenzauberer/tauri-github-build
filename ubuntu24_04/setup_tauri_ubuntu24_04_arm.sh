@@ -38,8 +38,8 @@ source "$HOME/.cargo/env"
 
 # 5. Add the ARM64 target to the Rust toolchain
 # This is crucial for building for the ARM64 architecture.
-echo "Adding aarch64-unknown-linux-gnu target to Rustup..."
-rustup target add aarch64-unknown-linux-gnu
+#echo "Adding aarch64-unknown-linux-gnu target to Rustup..."
+#rustup target add aarch64-unknown-linux-gnu
 
 # 6. Install the Tauri CLI using pnpm (globally)
 # Note: While installing locally as a dev dependency is common, for a general setup script, a global install can be convenient.
@@ -48,3 +48,5 @@ pnpm add -g @tauri-apps/cli
 
 echo "Setup complete! You are now ready to build Tauri apps on this Ubuntu 24.04 ARM64 machine."
 echo "You may need to restart your terminal or log out and back in for the changes to take full effect."
+
+sudo apt install git

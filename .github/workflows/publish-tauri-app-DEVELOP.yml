@@ -3,7 +3,7 @@ name: publish
 on:
   push:
     branches:
-      - main2
+      - develop
 jobs:
   publish-tauri:
     permissions:
@@ -14,7 +14,7 @@ jobs:
 #        os: ['ubuntu-latest', 'windows-latest', 'macos-latest', , 'ubuntu-22.04']
 #        os: ['ubuntu-22.04-arm', 'ubuntu-24.04-arm']
 #        os: ['ubuntu-22.04', 'ubuntu-24.04']
-        os: ['ubuntu-25.04-arm']
+        os: ['ubuntu-24.04-arm']
     runs-on: ${{ matrix.os }}
 
     steps:
@@ -48,8 +48,8 @@ jobs:
           # Use the correct runner label to conditionally install aarch64 target
           targets: ${{ contains(matrix.os, 'macos') && 'aarch64-apple-darwin' || '' }}
 
-      - name: Install Linux dependencies (Ubuntu only)
-        if: contains(matrix.os, 'ubuntu')
+      - name: Install Linux dependencies (Ubuntu only NOT ARM)
+        if: contains(matrix.os, 'ubuntu') && !contains(runner.arch, 'arm')
         run: |
           sudo apt-get update
           sudo apt-get install -y \
@@ -58,7 +58,20 @@ jobs:
             librsvg2-dev \
             patchelf \
             desktop-file-utils appstream
-      
+
+      - name: Install Linux dependencies (Ubuntu ARM only)
+        if: contains(matrix.os, 'ubuntu') && contains(runner.arch, 'arm')
+        run: |
+          sudo apt install -y \
+              build-essential \
+              libwebkit2gtk-4.1-dev \
+              libayatana-appindicator3-dev \
+              librsvg2-dev \
+              curl \
+              wget \
+              file \
+              libssl-dev        
+
       - name: Install frontend dependencies
         run: pnpm install --frozen-lockfile
 
