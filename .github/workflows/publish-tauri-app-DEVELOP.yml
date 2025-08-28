@@ -72,7 +72,26 @@ jobs:
             wget \
             file \
             libssl-dev:arm64
-      
+
+# SMTEST: V2
+      - name: Install Linux dependencies (Ubuntu ARM only)
+        if: contains(matrix.os, 'ubuntu') && contains(runner.arch, 'arm')
+        run: |
+          sudo DEBIAN_FRONTEND=noninteractive apt-get update -yq
+          sudo DEBIAN_FRONTEND=noninteractive apt-get install -yq \
+            build-essential pkg-config curl wget file \
+            libwebkit2gtk-4.1-dev \
+            libayatana-appindicator3-dev \
+            librsvg2-dev \
+            libssl-dev \
+            patchelm || sudo apt-get install -y patchelf \
+            desktop-file-utils appstream zsync xz-utils \
+            libfuse2t64
+          echo "webkit2gtk-4.1: $(pkg-config --modversion webkit2gtk-4.1 || echo 'not found')"
+          echo "fuse2: $(ldconfig -p | grep -E 'libfuse\.so\.2' || echo 'not found')"
+# SMTEST-END    
+
+
       - name: Install frontend dependencies
         run: pnpm install --frozen-lockfile
 
