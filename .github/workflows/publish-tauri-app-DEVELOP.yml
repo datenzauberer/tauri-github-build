@@ -62,7 +62,7 @@ jobs:
       - name: Install Linux dependencies (Ubuntu ARM only)
         if: contains(matrix.os, 'ubuntu') && contains(runner.arch, 'arm')
         run: |
-          sudo apt update # It's good practice to run this first
+          sudo apt update
           sudo apt install -y \
             build-essential \
             curl \
@@ -73,7 +73,8 @@ jobs:
             libayatana-appindicator3-dev:arm64 \
             librsvg2-dev:arm64 \
             patchelf \
-            desktop-file-utils appstream
+            desktop-file-utils appstream \
+            xdg-utils
 
       - name: Install frontend dependencies
         run: pnpm install --frozen-lockfile
