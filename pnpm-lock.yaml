@@ -14,6 +14,9 @@ importers:
       '@tauri-apps/plugin-opener':
         specifier: ^2
         version: 2.5.0
+      '@tauri-apps/plugin-updater':
+        specifier: ~2.9.0
+        version: 2.9.0
       tauri-github-build:
         specifier: 'link:'
         version: 'link:'
@@ -437,6 +440,9 @@ packages:
 
   '@tauri-apps/plugin-opener@2.5.0':
     resolution: {integrity: sha512-B0LShOYae4CZjN8leiNDbnfjSrTwoZakqKaWpfoH6nXiJwt6Rgj6RnVIffG3DoJiKsffRhMkjmBV9VeilSb4TA==}
+
+  '@tauri-apps/plugin-updater@2.9.0':
+    resolution: {integrity: sha512-j++sgY8XpeDvzImTrzWA08OqqGqgkNyxczLD7FjNJJx/uXxMZFz5nDcfkyoI/rCjYuj2101Tci/r/HFmOmoxCg==}
 
   '@types/cookie@0.6.0':
     resolution: {integrity: sha512-4Kh9a6B2bQciAhf7FSuMRRkUWecJgJu9nPnx3yzpsfXX/c50REIqpHY4C82bXP90qrLtXtkDxTZosYO3UpOwlA==}
@@ -912,6 +918,10 @@ snapshots:
       '@tauri-apps/cli-win32-x64-msvc': 2.8.3
 
   '@tauri-apps/plugin-opener@2.5.0':
+    dependencies:
+      '@tauri-apps/api': 2.8.0
+
+  '@tauri-apps/plugin-updater@2.9.0':
     dependencies:
       '@tauri-apps/api': 2.8.0
 
