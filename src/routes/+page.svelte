@@ -1,11 +1,12 @@
 <script lang="ts">
   import { onMount } from "svelte";
-  import { getTauriVersion } from "@tauri-apps/api/app";
   import { invoke } from '@tauri-apps/api/core';
-
-  let tauriVersion = "";
+  import { getVersion } from '@tauri-apps/api/app';
+  
+  let appVersion = "";
 
   onMount(async () => {
+    appVersion = await getVersion();
     tauriVersion = await getTauriVersion();
   });
 
@@ -16,8 +17,8 @@
 
 <main>
   <div>
-    <label for="tauri-version">Tauri version:</label>
-    <span id="tauri-version">{tauriVersion}</span>
+    <label for="app-version">App version:</label>  
+    <span id="app-version">{appVersion}</span>
   </div>
   <button on:click={checkUpdate}>Check for Updates</button>
 </main>
