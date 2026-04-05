@@ -28,7 +28,13 @@
   <p>Click on the Tauri, Vite, and SvelteKit logos to learn more.</p>
 
   <form class="row" onsubmit={greet}>
-    <input id="greet-input" placeholder="Enter a name..." bind:value={name} />
+   <input 
+       id="greet-input" 
+       placeholder="Enter a name..." 
+       bind:value={name} 
+       inputmode="text"
+       autocapitalize="words"
+     />  
     <button type="submit">Greet</button>
   </form>
   <p>{greetMsg}</p>
